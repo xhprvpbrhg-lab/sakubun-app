@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>おうちの方へ - おはなしのたね</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/parent.css" />
+</head>
+<body>
+<div class="app-shell parent-shell">
+
+  <section id="gate-view" class="view">
+    <h1 class="parent-title">おうちの方へ</h1>
+    <p class="gate-text">かんたんな けいさんに こたえてください</p>
+    <p id="gate-question" class="gate-question"></p>
+    <input id="gate-input" type="number" inputmode="numeric" class="free-input" />
+    <button id="gate-submit" class="btn btn-primary btn-large">すすむ</button>
+    <p id="gate-error" class="gate-error" hidden>もういちど、ためしてね</p>
+    <p class="back-link"><a href="index.html">← こどもの画面にもどる</a></p>
+  </section>
+
+  <section id="dashboard-view" class="view" hidden>
+    <header class="parent-header">
+      <h1 class="parent-title">おうちの方へ</h1>
+      <p class="back-link"><a href="index.html">← こどもの画面にもどる</a></p>
+    </header>
+
+    <div class="card">
+      <h2 class="card-title">さいきんの ようす</h2>
+      <div id="insight-list" class="insight-list"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">しつもんの しゅるいべつ（自力で答えられた割合）</h2>
+      <div id="category-bars" class="bar-list"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">モードべつ</h2>
+      <div id="mode-summary" class="mode-summary"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">きろく（新しい順）</h2>
+      <div id="record-list" class="record-list"></div>
+    </div>
+
+    <div class="card danger-card">
+      <button id="reset-btn" class="btn btn-quiet danger-text">きろくを ぜんぶ けす</button>
+    </div>
+  </section>
+
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/parent.js"></script>
+</body>
+</html>

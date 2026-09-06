@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>おはなしのたね</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ホーム -->
+  <section id="view-home" class="view">
+    <header class="home-header">
+      <h1>おはなしの たね</h1>
+      <p class="home-sub">きょうの3もん</p>
+    </header>
+
+    <div class="home-progress">
+      <p id="home-progress-text" class="progress-text"></p>
+      <div id="home-progress-dots" class="progress-dots"></div>
+    </div>
+
+    <button id="home-start-btn" class="btn btn-primary btn-large">はじめる</button>
+
+    <div id="home-finished-msg" class="finished-msg" hidden>
+      <p class="finished-title">きょうは ここまで！</p>
+      <p class="finished-body">また あした、いっしょに かんがえよう。</p>
+    </div>
+
+    <button id="home-extra-btn" class="btn btn-quiet" hidden>（おうちの方へ）もう3もん やる</button>
+
+    <footer class="home-footer">
+      <a href="parent.html" class="parent-link">👪 おうちの方へ</a>
+    </footer>
+  </section>
+
+  <!-- もんだい画面 -->
+  <section id="view-problem" class="view" hidden>
+    <div class="problem-topbar">
+      <span id="stage-category-tag" class="category-tag"></span>
+    </div>
+
+    <div id="problem-media" class="problem-media"></div>
+
+    <p id="stage-prompt" class="stage-prompt"></p>
+
+    <div id="free-answer-area" class="free-answer-area">
+      <input id="free-answer-input" type="text" class="free-input" placeholder="ここに かいてみよう" maxlength="60" />
+      <button id="free-answer-submit" class="btn btn-primary">こたえる</button>
+    </div>
+
+    <div id="choice-answer-area" class="choice-answer-area" hidden></div>
+
+    <div class="problem-bottombar">
+      <button id="hint-btn" class="btn btn-hint">💡 ヒント</button>
+      <button id="problem-end-ideas-btn" class="btn btn-quiet">きょうは ここまでにする</button>
+    </div>
+  </section>
+
+  <!-- こたえた直後の分岐画面 -->
+  <section id="view-transition" class="view" hidden>
+    <p id="transition-praise" class="praise-text"></p>
+    <div class="transition-buttons">
+      <button id="transition-continue-btn" class="btn btn-primary btn-large">もうすこし かんがえる</button>
+      <button id="transition-sentence-btn" class="btn btn-secondary btn-large">ぶんに してみよう</button>
+      <button id="transition-end-btn" class="btn btn-quiet">きょうは これで おわる</button>
+    </div>
+  </section>
+
+  <!-- 文章化画面 -->
+  <section id="view-sentence" class="view" hidden>
+    <h2 class="section-title">ぶんに してみよう</h2>
+    <div id="sentence-word-chips" class="word-chip-row"></div>
+
+    <div class="sentence-line">
+      <span id="sentence-subject" class="sentence-subject"></span>
+      <input id="sentence-input" type="text" class="free-input sentence-input" placeholder="つづきを かいてみよう" maxlength="60" />
+    </div>
+
+    <div class="transition-buttons">
+      <button id="sentence-complete-btn" class="btn btn-primary btn-large">できた！</button>
+      <button id="sentence-skip-btn" class="btn btn-quiet">ぶんは かかずに おわる</button>
+    </div>
+  </section>
+
+  <!-- 1問終了 -->
+  <section id="view-done" class="view" hidden>
+    <p id="done-message" class="praise-text"></p>
+    <button id="done-next-btn" class="btn btn-primary btn-large" hidden>つぎへ</button>
+    <p id="done-finish-note" class="finished-body" hidden></p>
+  </section>
+
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

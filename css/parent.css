@@ -1,0 +1,140 @@
+.parent-shell {
+  gap: 0;
+}
+.parent-title {
+  font-size: 22px;
+  color: var(--mint-dark);
+  margin: 0 0 6px;
+  text-align: center;
+}
+.gate-text {
+  text-align: center;
+  color: var(--text-soft);
+  margin: 0;
+}
+.gate-question {
+  text-align: center;
+  font-size: 30px;
+  font-weight: 700;
+  margin: 10px 0;
+}
+.gate-error {
+  text-align: center;
+  color: var(--orange-dark);
+}
+.back-link {
+  text-align: center;
+  margin: 0;
+}
+.back-link a {
+  color: var(--text-soft);
+  font-size: 14px;
+}
+
+.parent-header {
+  margin-bottom: 6px;
+}
+
+.card {
+  background: var(--bg-page);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 16px;
+  margin: 0 0 12px;
+  color: var(--mint-dark);
+}
+
+.insight-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.insight-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bar-row-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+.bar-track {
+  background: #fff;
+  border-radius: 999px;
+  height: 14px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  background: var(--mint);
+  border-radius: 999px;
+}
+.bar-row.low .bar-fill { background: var(--orange); }
+
+.mode-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mode-summary-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+.record-row {
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.record-row .rec-title {
+  font-weight: 700;
+}
+.record-row .rec-meta {
+  color: var(--text-soft);
+}
+
+.empty-note {
+  color: var(--text-soft);
+  font-size: 14px;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.danger-card {
+  background: transparent;
+  padding: 0;
+  text-align: center;
+}
+.danger-text {
+  color: #C25454;
+}
