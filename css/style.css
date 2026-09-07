@@ -234,7 +234,13 @@ html, body {
 .free-answer-area {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+}
+.answer-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin: 0 2px;
 }
 .free-input {
   font-size: 20px;
@@ -247,6 +253,47 @@ html, body {
 .free-input:focus {
   outline: none;
   border-color: var(--mint);
+}
+
+/* 作文用紙ふうの大きな自由回答欄（Apple Pencil / Scribble 対応） */
+.free-textarea {
+  font-size: 21px;
+  line-height: 36px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  font-family: inherit;
+  color: var(--text);
+  width: 100%;
+  min-height: 180px;
+  resize: vertical;
+  background-color: #fff;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 34px,
+    var(--border) 34px,
+    var(--border) 36px
+  );
+  background-position: 0 14px;
+}
+.free-textarea:focus {
+  outline: none;
+  border-color: var(--mint);
+}
+.free-textarea::placeholder {
+  color: #B7B7B7;
+}
+@media (min-width: 560px) {
+  .free-textarea {
+    min-height: 230px;
+  }
+}
+@media (max-width: 380px) {
+  .free-textarea {
+    min-height: 150px;
+    font-size: 19px;
+  }
 }
 
 .choice-answer-area {

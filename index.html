@@ -45,12 +45,13 @@
 
     <p id="stage-prompt" class="stage-prompt"></p>
 
-    <div id="free-answer-area" class="free-answer-area">
-      <input id="free-answer-input" type="text" class="free-input" placeholder="ここに かいてみよう" maxlength="60" />
-      <button id="free-answer-submit" class="btn btn-primary">こたえる</button>
-    </div>
-
     <div id="choice-answer-area" class="choice-answer-area" hidden></div>
+
+    <div id="free-answer-area" class="free-answer-area">
+      <label id="answer-label" for="free-answer-input" class="answer-label">思いついたことを かいてみよう</label>
+      <textarea id="free-answer-input" class="free-textarea" placeholder="ここに かく" maxlength="200" rows="4"></textarea>
+      <button id="free-answer-submit" class="btn btn-primary btn-large">💡 思いついた！</button>
+    </div>
 
     <div class="problem-bottombar">
       <button id="hint-btn" class="btn btn-hint">💡 ヒント</button>

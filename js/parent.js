@@ -165,15 +165,17 @@
       return;
     }
     const recent = records.slice().reverse().slice(0, 30);
+    const methodLabels = { text: "文字で回答", verbal: "口頭で回答", choice: "えらんで回答" };
     recent.forEach((r) => {
       const modeLabel = r.mode === "picture" ? "絵" : "ことば";
       const hintLabel = r.jiriki ? "じりきで こたえた" : `ヒント${r.hintLevelUsed}かい`;
       const sentenceLabel = r.madeSentence ? "文づくり ○" : "発想のみ";
+      const methodLabel = methodLabels[r.inputMethod] || "";
       const row = document.createElement("div");
       row.className = "record-row";
       row.innerHTML = `
         <div class="rec-title">${r.date} ・ ${modeLabel} ・ ${r.problemTitle}</div>
-        <div class="rec-meta">${hintLabel}（${r.questionType}）・ ${sentenceLabel}</div>
+        <div class="rec-meta">${hintLabel}（${r.questionType}）・ ${sentenceLabel}${methodLabel ? " ・ " + methodLabel : ""}</div>
         <div>${r.finalAnswer ? "「" + escapeHtml(r.finalAnswer) + "」" : ""}</div>
       `;
       container.appendChild(row);

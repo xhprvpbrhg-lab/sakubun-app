@@ -88,18 +88,20 @@
       idx: 0,
       firstAnswerIdx: null,
       firstAnswerCategory: null,
-      capturedAnswers: [], // {idx, category, text, type}
+      firstAnswerMethod: null,
+      capturedAnswers: [], // {idx, category, text, method}
       lastAnswerText: ""
     };
     showView("problem");
-    renderStage();
+    renderStage(false);
   }
 
   function currentStage() {
     return session.stages[session.idx];
   }
 
-  function renderStage() {
+  // preserveInput: true のときは自由回答欄の文字を消さない（ヒントで問いが深まっただけのとき用）
+  function renderStage(preserveInput) {
     const stage = currentStage();
     const problem = session.problem;
 
@@ -118,20 +120,18 @@
     document.getElementById("stage-prompt").textContent = stage.prompt;
     document.getElementById("stage-category-tag").textContent = "🏷 " + stage.category;
 
-    const freeArea = document.getElementById("free-answer-area");
+    // 自由回答欄（大きなtextarea）はどの段階でも常に表示したままにする
+    const input = document.getElementById("free-answer-input");
+    if (!preserveInput) {
+      input.value = "";
+    }
+    setTimeout(() => input.focus(), 50);
+
     const choiceArea = document.getElementById("choice-answer-area");
     const hintBtn = document.getElementById("hint-btn");
     const hasNext = session.idx < session.stages.length - 1;
 
-    if (stage.type === "free") {
-      freeArea.hidden = false;
-      choiceArea.hidden = true;
-      const input = document.getElementById("free-answer-input");
-      input.value = "";
-      setTimeout(() => input.focus(), 50);
-      hintBtn.hidden = !hasNext;
-    } else {
-      freeArea.hidden = true;
+    if (stage.type === "choice") {
       choiceArea.hidden = false;
       choiceArea.innerHTML = "";
       stage.choices.forEach((choiceText) => {
@@ -142,39 +142,43 @@
         choiceArea.appendChild(btn);
       });
       hintBtn.hidden = true;
+    } else {
+      choiceArea.hidden = true;
+      choiceArea.innerHTML = "";
+      hintBtn.hidden = !hasNext;
     }
   }
 
-  function recordFirstAnswerIfNeeded(category) {
+  function recordFirstAnswerIfNeeded(category, method) {
     if (session.firstAnswerIdx === null) {
       session.firstAnswerIdx = session.idx;
       session.firstAnswerCategory = category;
+      session.firstAnswerMethod = method;
     }
   }
 
-  function submitFree() {
+  // 「💡 思いついた！」ボタン：文字が書けていればそれを、書いていなければ
+  // 「口頭で答えた」ものとして記録して次へ進む
+  function submitAnswer() {
     const input = document.getElementById("free-answer-input");
     const text = input.value.trim();
     const stage = currentStage();
-    if (text === "") {
-      advanceHint();
-      return;
-    }
-    recordFirstAnswerIfNeeded(stage.category);
-    session.capturedAnswers.push({ idx: session.idx, category: stage.category, text, type: "free" });
-    session.lastAnswerText = text;
+    const method = text === "" ? "verbal" : "text";
+    recordFirstAnswerIfNeeded(stage.category, method);
+    session.capturedAnswers.push({ idx: session.idx, category: stage.category, text, method });
+    session.lastAnswerText = text || session.lastAnswerText;
     showTransitionMenu();
   }
 
   function chooseChoice(text) {
     const stage = currentStage();
-    recordFirstAnswerIfNeeded(stage.category);
-    session.capturedAnswers.push({ idx: session.idx, category: stage.category, text, type: "choice" });
+    recordFirstAnswerIfNeeded(stage.category, "choice");
+    session.capturedAnswers.push({ idx: session.idx, category: stage.category, text, method: "choice" });
     session.lastAnswerText = text;
     // 選択式のあとは、必ず次（自由回答）へ自動で進む
     if (session.idx < session.stages.length - 1) {
       session.idx++;
-      renderStage();
+      renderStage(false);
     } else {
       showTransitionMenu();
     }
@@ -183,7 +187,7 @@
   function advanceHint() {
     if (session.idx < session.stages.length - 1) {
       session.idx++;
-      renderStage();
+      renderStage(true);
     } else {
       // これ以上ヒントはない → 発想だけで終わる案内
       showTransitionMenu(true);
@@ -200,7 +204,7 @@
   function transitionContinue() {
     session.idx++;
     showView("problem");
-    renderStage();
+    renderStage(false);
   }
 
   function transitionToSentence() {
@@ -253,6 +257,7 @@
     const hintLevelUsed = session.firstAnswerIdx === null ? session.stages.length : session.firstAnswerIdx;
     const jiriki = hintLevelUsed === 0;
     const questionType = session.firstAnswerCategory || currentStage().category;
+    const inputMethod = session.firstAnswerMethod || "verbal";
 
     Storage.saveRecord({
       mode: session.mode,
@@ -261,6 +266,7 @@
       jiriki,
       hintLevelUsed,
       questionType,
+      inputMethod,
       finalAnswer: session.lastAnswerText || "",
       madeSentence,
       sentenceText: sentenceText || null
@@ -344,13 +350,7 @@
     document.getElementById("home-start-btn").addEventListener("click", homeStart);
     document.getElementById("home-extra-btn").addEventListener("click", homeExtraRound);
 
-    document.getElementById("free-answer-submit").addEventListener("click", submitFree);
-    document.getElementById("free-answer-input").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        submitFree();
-      }
-    });
+    document.getElementById("free-answer-submit").addEventListener("click", submitAnswer);
     document.getElementById("hint-btn").addEventListener("click", advanceHint);
     document.getElementById("problem-end-ideas-btn").addEventListener("click", () => finalizeRecord(false, null));
 
