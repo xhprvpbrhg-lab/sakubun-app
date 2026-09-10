@@ -11,7 +11,8 @@
     problem: document.getElementById("view-problem"),
     transition: document.getElementById("view-transition"),
     sentence: document.getElementById("view-sentence"),
-    done: document.getElementById("view-done")
+    done: document.getElementById("view-done"),
+    end: document.getElementById("view-end")
   };
 
   function showView(name) {
@@ -67,7 +68,8 @@
         date: today,
         queue: pickTodayQueue(3),
         currentIndex: 0,
-        extraRoundUsed: false
+        extraRoundUsed: false,
+        endedEarly: false
       };
       Storage.setTodayState(state);
     }
@@ -90,7 +92,11 @@
       firstAnswerCategory: null,
       firstAnswerMethod: null,
       capturedAnswers: [], // {idx, category, text, method}
-      lastAnswerText: ""
+      lastAnswerText: "",
+      // 保護者画面でのみ使う所要時間の計測（こどもには一切表示しない）
+      problemStartAt: Date.now(),
+      firstInputAt: null,
+      firstAnswerAt: null
     };
     showView("problem");
     renderStage(false);
@@ -154,6 +160,14 @@
       session.firstAnswerIdx = session.idx;
       session.firstAnswerCategory = category;
       session.firstAnswerMethod = method;
+      session.firstAnswerAt = Date.now();
+    }
+  }
+
+  // 自由回答欄に最初の文字が入力された瞬間を記録する（発想時間と入力時間を分けるため）
+  function noteFirstInput() {
+    if (session && session.firstInputAt === null) {
+      session.firstInputAt = Date.now();
     }
   }
 
@@ -213,7 +227,7 @@
   }
 
   function transitionEndIdeas() {
-    finalizeRecord(false, null);
+    finalizeRecordAndEndToday(false, null);
   }
 
   function renderSentenceView() {
@@ -253,11 +267,23 @@
     finalizeRecord(false, null);
   }
 
-  function finalizeRecord(madeSentence, sentenceText) {
+  // こたえを記録し、今日の進行状況(currentIndex)を1つ進める。
+  // 画面遷移はしない（呼び出し側が「次へ」か「今日はここまで」かを決める）。
+  function buildAndSaveRecord(madeSentence, sentenceText) {
     const hintLevelUsed = session.firstAnswerIdx === null ? session.stages.length : session.firstAnswerIdx;
     const jiriki = hintLevelUsed === 0;
     const questionType = session.firstAnswerCategory || currentStage().category;
     const inputMethod = session.firstAnswerMethod || "verbal";
+
+    // 発想にかかった時間／入力にかかった時間（保護者画面でのみ使用。こどもには非表示）
+    const ideaLatencyMs = session.firstInputAt
+      ? session.firstInputAt - session.problemStartAt
+      : session.firstAnswerAt
+      ? session.firstAnswerAt - session.problemStartAt
+      : null;
+    const inputDurationMs = session.firstInputAt && session.firstAnswerAt
+      ? Math.max(0, session.firstAnswerAt - session.firstInputAt)
+      : null;
 
     Storage.saveRecord({
       mode: session.mode,
@@ -269,7 +295,9 @@
       inputMethod,
       finalAnswer: session.lastAnswerText || "",
       madeSentence,
-      sentenceText: sentenceText || null
+      sentenceText: sentenceText || null,
+      ideaLatencyMs,
+      inputDurationMs
     });
 
     const state = Storage.getTodayState();
@@ -277,7 +305,22 @@
     Storage.setTodayState(state);
 
     session = null;
+  }
+
+  // 通常の完了（つぎへ進める／ホームへ）
+  function finalizeRecord(madeSentence, sentenceText) {
+    buildAndSaveRecord(madeSentence, sentenceText);
     goNextOrHome();
+  }
+
+  // 「きょうは ここまでにする／これで おわる」専用：
+  // 次の問題には絶対に進まず、今日のセッションをその場で終了する。
+  function finalizeRecordAndEndToday(madeSentence, sentenceText) {
+    buildAndSaveRecord(madeSentence, sentenceText);
+    const state = getOrCreateTodayState();
+    state.endedEarly = true;
+    Storage.setTodayState(state);
+    showView("end");
   }
 
   function goNextOrHome() {
@@ -303,6 +346,7 @@
     const state = getOrCreateTodayState();
     const total = state.queue.length;
     const done = Math.min(state.currentIndex, total);
+    const finished = state.endedEarly || done >= total;
 
     document.getElementById("home-progress-text").textContent = `きょうの${total}もん： ${done} / ${total}`;
     const dots = document.getElementById("home-progress-dots");
@@ -317,7 +361,7 @@
     const finishedMsg = document.getElementById("home-finished-msg");
     const extraBtn = document.getElementById("home-extra-btn");
 
-    if (done < total) {
+    if (!finished) {
       startBtn.hidden = false;
       startBtn.textContent = done === 0 ? "はじめる" : "つづきから";
       finishedMsg.hidden = true;
@@ -341,6 +385,7 @@
     const more = pickTodayQueue(3);
     state.queue = state.queue.concat(more);
     state.extraRoundUsed = true;
+    state.endedEarly = false;
     Storage.setTodayState(state);
     renderHome();
   }
@@ -351,8 +396,9 @@
     document.getElementById("home-extra-btn").addEventListener("click", homeExtraRound);
 
     document.getElementById("free-answer-submit").addEventListener("click", submitAnswer);
+    document.getElementById("free-answer-input").addEventListener("input", noteFirstInput);
     document.getElementById("hint-btn").addEventListener("click", advanceHint);
-    document.getElementById("problem-end-ideas-btn").addEventListener("click", () => finalizeRecord(false, null));
+    document.getElementById("problem-end-ideas-btn").addEventListener("click", () => finalizeRecordAndEndToday(false, null));
 
     document.getElementById("transition-continue-btn").addEventListener("click", transitionContinue);
     document.getElementById("transition-sentence-btn").addEventListener("click", transitionToSentence);
@@ -362,6 +408,7 @@
     document.getElementById("sentence-skip-btn").addEventListener("click", sentenceSkip);
 
     document.getElementById("done-next-btn").addEventListener("click", doneNext);
+    document.getElementById("end-home-btn").addEventListener("click", renderHome);
 
     renderHome();
   });

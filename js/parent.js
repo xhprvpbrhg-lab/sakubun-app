@@ -39,6 +39,7 @@
         '<p class="empty-note">まだ きろくが すくないよ。つづけてみてね。</p>';
       document.getElementById("category-bars").innerHTML = "";
       document.getElementById("mode-summary").innerHTML = "";
+      document.getElementById("timing-summary").innerHTML = "";
       renderRecordList(records);
       return;
     }
@@ -46,7 +47,63 @@
     renderInsights(records);
     renderCategoryBars(records);
     renderModeSummary(records);
+    renderTimingSummary(records);
     renderRecordList(records);
+  }
+
+  function average(nums) {
+    if (nums.length === 0) return null;
+    return nums.reduce((sum, n) => sum + n, 0) / nums.length;
+  }
+
+  function formatDuration(ms) {
+    if (ms === null || ms === undefined) return null;
+    const sec = ms / 1000;
+    if (sec < 60) return `${Math.round(sec)}秒`;
+    return `${Math.floor(sec / 60)}分${Math.round(sec % 60)}秒`;
+  }
+
+  function renderTimingSummary(records) {
+    const container = document.getElementById("timing-summary");
+    container.innerHTML = "";
+
+    const recent = records.slice(-20);
+    const ideaTimes = recent.map((r) => r.ideaLatencyMs).filter((v) => v !== null && v !== undefined);
+    const inputTimes = recent.map((r) => r.inputDurationMs).filter((v) => v !== null && v !== undefined);
+
+    if (ideaTimes.length < 3 && inputTimes.length < 3) {
+      container.innerHTML = '<p class="empty-note">まだ 時間の きろくが すくないよ。</p>';
+      return;
+    }
+
+    const avgIdea = average(ideaTimes);
+    const avgInput = average(inputTimes);
+
+    if (avgIdea !== null) {
+      const item = document.createElement("div");
+      item.className = "mode-summary-item";
+      item.innerHTML = `<span>思いつくまで（平均）</span><span>${formatDuration(avgIdea)}</span>`;
+      container.appendChild(item);
+    }
+    if (avgInput !== null) {
+      const item = document.createElement("div");
+      item.className = "mode-summary-item";
+      item.innerHTML = `<span>書くのに かかった時間（平均）</span><span>${formatDuration(avgInput)}</span>`;
+      container.appendChild(item);
+    }
+
+    if (avgIdea !== null && avgInput !== null) {
+      const note = document.createElement("div");
+      note.className = "insight-item";
+      if (avgInput > avgIdea * 1.5) {
+        note.textContent = "発想は早いですが、入力に時間がかかることが多いです。";
+      } else if (avgIdea > avgInput * 1.5) {
+        note.textContent = "文章を思いつくまでに時間がかかることが多いです。";
+      } else {
+        note.textContent = "思いつく時間と書く時間は、大きな差はありません。";
+      }
+      container.appendChild(note);
+    }
   }
 
   function renderCategoryBars(records) {
@@ -171,12 +228,20 @@
       const hintLabel = r.jiriki ? "じりきで こたえた" : `ヒント${r.hintLevelUsed}かい`;
       const sentenceLabel = r.madeSentence ? "文づくり ○" : "発想のみ";
       const methodLabel = methodLabels[r.inputMethod] || "";
+      const timingParts = [];
+      if (r.ideaLatencyMs !== null && r.ideaLatencyMs !== undefined) {
+        timingParts.push(`思いつくまで ${formatDuration(r.ideaLatencyMs)}`);
+      }
+      if (r.inputDurationMs !== null && r.inputDurationMs !== undefined) {
+        timingParts.push(`書くのに ${formatDuration(r.inputDurationMs)}`);
+      }
       const row = document.createElement("div");
       row.className = "record-row";
       row.innerHTML = `
         <div class="rec-title">${r.date} ・ ${modeLabel} ・ ${r.problemTitle}</div>
         <div class="rec-meta">${hintLabel}（${r.questionType}）・ ${sentenceLabel}${methodLabel ? " ・ " + methodLabel : ""}</div>
         <div>${r.finalAnswer ? "「" + escapeHtml(r.finalAnswer) + "」" : ""}</div>
+        ${timingParts.length ? `<div class="rec-meta">${timingParts.join(" ・ ")}</div>` : ""}
       `;
       container.appendChild(row);
     });
